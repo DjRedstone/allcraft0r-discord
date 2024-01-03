@@ -1,4 +1,5 @@
 const mysql = require("mysql");
+const {query} = require("express");
 
 class DB {
     constructor(config) {
@@ -36,6 +37,10 @@ class DB {
                 else resolve(res);
             });
         });
+    }
+
+    async getLeaderboard() {
+        return await this.query("SELECT uuid, money FROM user_money ORDER BY money DESC;");
     }
 }
 
