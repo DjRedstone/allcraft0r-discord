@@ -1,12 +1,12 @@
 // Loading modules
 const CONFIG = require("./config.json");
-const DB = require("./db/db.js");
-const Discord = require("./discord/discord.js");
-const Web = require("./web/web.js");
+const DB = require("./db/Db.js");
+const Discord = require("./discord/Discord.js");
+const Web = require("./web/Web.js");
 
 // Starting modules
 const db = new DB(CONFIG.MYSQL);
-const discord = new Discord(CONFIG.DISCORD_TOKEN, db);
+const discord = new Discord(CONFIG.DISCORD, db);
 const web = new Web(discord, db, CONFIG.PORT);
 
 // Send message when every module loaded
