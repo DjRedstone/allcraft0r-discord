@@ -1,5 +1,7 @@
 const { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
+const aroundChar = {}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("help")
@@ -18,8 +20,19 @@ module.exports = {
                 .setTitle(`Commandes ${name}`)
                 .setColor(color);
             for (const cmd of commands) {
+                let optionsTxt = "";
+                for (const option of cmd.data.options) {
+                    const { type, name, required } = option;
+                    optionsTxt += required ? "<" : "(<";
+                    if (type in aroundChar) {
+                        optionsTxt += aroundChar[type];
+                    }
+                    optionsTxt += name;
+                    optionsTxt += required ? ">" : ">)";
+                    optionsTxt += " ";
+                }
                 embed.addFields({
-                    name: `◽️ ${cmd.data.name}`,
+                    name: `◽️ ${cmd.data.name} ${optionsTxt}`,
                     value: `> ${cmd.data.description}`,
                     inline: true
                 });
