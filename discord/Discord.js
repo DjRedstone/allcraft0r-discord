@@ -114,6 +114,12 @@ class Discord {
             for (const cmd of data.commands) {
                 this.client.commands.set(cmd.data.name, cmd);
                 commands.push(cmd.data.toJSON());
+                if (cmd.listeners) {
+                    for (const lData of cmd.listeners) {
+                        const { event, listener } = lData;
+                        this.client.on(event, listener);
+                    }
+                }
             }
         }
         const helpCmdIndex = global.getFromArray(commands, "name", "help");
