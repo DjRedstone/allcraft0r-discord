@@ -1,7 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const MoneyManager = require("./Money.js");
-const { Client, GatewayIntentBits, Collection, Events, REST, Routes, ActivityType, Snowflake } = require("discord.js");
+const { Client, GatewayIntentBits, Collection, Events, REST, Routes, ActivityType, Snowflake, PermissionFlagsBits } = require("discord.js");
 const cron = require("node-cron");
 
 /**
@@ -27,13 +27,22 @@ class Discord {
      * @param {Db} db - A dabase manager
      */
     constructor(config, db) {
-        const { TOKEN, CLIENT_ID, GUILD_ID, ADMIN_CHANNEL_ID, LOG_CHANNEL_ID } = config;
+        const { TOKEN, MEE6_TOKEN, CLIENT_ID, MEE6_CLIENT_ID, GUILD_ID, ADMIN_CHANNEL_ID, LOG_CHANNEL_ID } = config;
         this.token = TOKEN;
+        this.mee6Token = MEE6_TOKEN;
         this.clientId = CLIENT_ID;
+        this.mee6ClientId = MEE6_CLIENT_ID;
         this.guildId = GUILD_ID;
         this.connected = false;
 
         this.client = new Client({
+            intents: [
+                GatewayIntentBits.Guilds,
+                GatewayIntentBits.GuildMessages,
+                GatewayIntentBits.MessageContent
+            ],
+        });
+        this.mee6Client = new Client({
             intents: [
                 GatewayIntentBits.Guilds,
                 GatewayIntentBits.GuildMessages,
@@ -52,7 +61,10 @@ class Discord {
 
         this.loadCommands();
 
-        this.client.login(TOKEN).then(async () => {
+        (async () => {
+            await this.client.login(TOKEN);
+            await this.mee6Client.login(MEE6_TOKEN);
+
             console.info("✅ Discord app connected!");
 
             global.discord.adminChannel = await this.client.channels.fetch(ADMIN_CHANNEL_ID);
@@ -73,8 +85,10 @@ class Discord {
                 next = !next;
             });
 
+            this.mee6Client.user.setStatus("invisible");
+
             this.connected = true;
-        });
+        })();
     }
 
     /**
@@ -106,7 +120,9 @@ class Discord {
      */
     loadCommands() {
         this.client.commands = new Collection();
+        this.mee6Client.commands = new Collection();
         const commands = [];
+        const MEE6commands = [];
 
         const publicCommands = this.exploreFolder("commands/public");
         global.discord.publicCommands = publicCommands;
@@ -122,6 +138,20 @@ class Discord {
                 }
             }
         }
+        const privateCommands = this.exploreFolder("commands/private");
+        for (const data of privateCommands) {
+            for (const cmd of data.commands) {
+                cmd.data.setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages);
+                this.mee6Client.commands.set(cmd.data.name, cmd);
+                MEE6commands.push(cmd.data.toJSON());
+                if (cmd.listeners) {
+                    for (const lData of cmd.listeners) {
+                        const { event, listener } = lData;
+                        this.mee6Client.on(event, listener);
+                    }
+                }
+            }
+        }
         const helpCmdIndex = global.getFromArray(commands, "name", "help");
         if (helpCmdIndex) {
             commands[helpCmdIndex].options[0].choices = [];
@@ -133,44 +163,54 @@ class Discord {
             }
         }
 
-        this.client.on(Events.InteractionCreate, async interaction => {
-            if (!interaction.isChatInputCommand()) return;
+        /**
+         * @param token {String}
+         * @param clientId {String}
+         * @param client {Client}
+         * @param cmds {Collection} */
+        const registerCommands = (token, clientId, client, cmds) => {
+            client.on(Events.InteractionCreate, async interaction => {
+                if (!interaction.isChatInputCommand()) return;
 
-            const cmd = this.client.commands.get(interaction.commandName);
+                const cmd = client.commands.get(interaction.commandName);
 
-            if (!cmd) {
-                this.error(`No command matching ${interaction.commandName} was found.`);
-                return;
-            }
-
-            try {
-                await cmd.execute(interaction);
-            } catch (error) {
-                this.error(error);
-                if (interaction.replied || interaction.deferred) {
-                    await interaction.followUp({ content: "There was an error while executing this command!", ephemeral: true });
-                } else {
-                    await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true });
+                if (!cmd) {
+                    this.error(`No command matching ${interaction.commandName} was found.`);
+                    return;
                 }
-            }
-        });
 
-        const rest = new REST().setToken(this.token);
+                try {
+                    await cmd.execute(interaction);
+                } catch (error) {
+                    this.error(error);
+                    if (interaction.replied || interaction.deferred) {
+                        await interaction.followUp({ content: "There was an error while executing this command!", ephemeral: true });
+                    } else {
+                        await interaction.reply({ content: "There was an error while executing this command!", ephemeral: true });
+                    }
+                }
+            });
 
-        (async () => {
-            try {
-                this.info(`Started refreshing ${commands.length} application (/) commands...`);
+            const rest = new REST().setToken(token);
 
-                const data = await rest.put(
-                    Routes.applicationGuildCommands(this.clientId, this.guildId),
-                    { body: commands },
-                );
+            (async () => {
+                try {
+                    this.info(`Started refreshing ${cmds.length} application (/) commands... (${clientId})`);
 
-                this.info(`Successfully reloaded ${data.length} application (/) commands!`);
-            } catch (error) {
-                this.error(error);
-            }
-        })();
+                    const data = await rest.put(
+                        Routes.applicationGuildCommands(clientId, this.guildId),
+                        { body: cmds },
+                    );
+
+                    this.info(`Successfully reloaded ${data.length} application (/) commands! (${clientId})`);
+                } catch (error) {
+                    this.error(error);
+                }
+            })();
+        }
+
+        registerCommands(this.token, this.clientId, this.client, commands);
+        registerCommands(this.mee6Token, this.mee6ClientId, this.mee6Client, MEE6commands);
     }
 
     /**

@@ -1,7 +1,5 @@
 const { ChatInputCommandInteraction, SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
-const aroundChar = {}
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("help")
@@ -24,9 +22,6 @@ module.exports = {
                 for (const option of cmd.data.options) {
                     const { type, name, required } = option;
                     optionsTxt += required ? "<" : "(<";
-                    if (type in aroundChar) {
-                        optionsTxt += aroundChar[type];
-                    }
                     optionsTxt += name;
                     optionsTxt += required ? ">" : ">)";
                     optionsTxt += " ";
