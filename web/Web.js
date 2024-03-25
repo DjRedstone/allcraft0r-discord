@@ -27,6 +27,20 @@ class Web {
             res.send(leaderboard);
         });
 
+        this.app.get("/discordUser*", async (req, res) => {
+            const id = req.query.id;
+            if (!id) {
+                res.sendStatus(404);
+            } else {
+                try {
+                    const data = await this.discord.client.users.fetch(id);
+                    res.send(data);
+                } catch (e) {
+                    res.sendStatus(403);
+                }
+            }
+        });
+
         this.server.listen(this.port, () => {
             console.log(`✅ Web server running on port ${this.port}`);
             this.connected = true;

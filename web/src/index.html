@@ -6,20 +6,57 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="shortcut icon" href="logo.webp" type="image/x-icon">
-    <link type="text/css" rel="stylesheet" href="style.css">
-    <title>Allcraft0r discord</title>
+    <title>Discord d'Allcraft0r</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.js" integrity="sha512-Xo0Jh8MsOn72LGV8kU5LsclG7SUzJsWGhXbWcYs2MAmChkQzwiW/yTQwdJ8w6UA9C6EVG18GHb/TrYpYCjyAQw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.5.0/semantic.min.css" integrity="sha512-KXol4x3sVoO+8ZsWPFI/r5KBVB/ssCGB5tsv2nVOKwLg33wTFP3fmnXa47FdSVIshVTgsYk/1734xSk9aFIa4A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
-    <div id="nav-bar">
-        <img src="logo.webp">
-        <span selected="true">Leaderboard</span>
-        <span>Shop</span>
-    </div>
-    <div class="tab" id="leaderboard">
-        <h1 style="font-weight: bold; font-size: 72px; text-align: center;">Leaderboard</h1>
-        <div id="leaderboard-grid">
-
+    <div class="ui violet inverted attached stackable menu massive">
+        <div class="ui container">
+            <div class="header item">
+                <img class="ui avatar image" src="logo.webp">
+                Discord d'Allcraft0r
+            </div>
+            <a class="active item">Leaderboard</a>
+            <a class="item">Shop</a>
+            <div class="right menu">
+                <a class="item">
+                    <div class="ui active inline loader"></div>
+                </a>
+            </div>
         </div>
+    </div>
+    <br>
+    <div class="ui text container">
+        <h1 class="ui center aligned icon header">
+            <i class="circular users icon"></i>
+            <div class="content">
+                Leaderboard
+                <div class="sub header">Voici la liste des meilleurs utilistateurs avec leur nombre de redstone associé</div>
+            </div>
+        </h1>
+        <table class="ui very basic striped large table">
+            <thead>
+            <th class="center aligned">Place</th>
+            <th class="center aligned">Utilistateur</th>
+            <th class="center aligned">Redstones</th>
+            </thead>
+            <tbody id="leaderboard-body">
+
+            </tbody>
+        </table>
+        <style>
+            #leaderboard-body tr:first-child {
+                background-color: gold;
+            }
+            #leaderboard-body tr:nth-child(2) {
+                background-color: silver;
+            }
+            #leaderboard-body tr:nth-child(3) {
+                background-color: #CC9966;
+            }
+        </style>
     </div>
 </body>
     <script src="/jquery/jquery.min.js"></script>
