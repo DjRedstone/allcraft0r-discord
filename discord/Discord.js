@@ -65,10 +65,10 @@ class Discord {
             await this.client.login(TOKEN);
             await this.mee6Client.login(MEE6_TOKEN);
 
-            console.info("✅ Discord app connected!");
-
             global.discord.adminChannel = await this.client.channels.fetch(ADMIN_CHANNEL_ID);
+            if (global.discord.adminChannel === undefined) throw "Admin Channel not finded!";
             global.discord.logChannel = await this.client.channels.fetch(LOG_CHANNEL_ID);
+            if (global.discord.logChannel === undefined) throw "Log Channel not finded!";
 
             this.loadOnMessageMoney();
 
@@ -86,6 +86,8 @@ class Discord {
             });
 
             this.mee6Client.user.setStatus("invisible");
+
+            console.info("✅ Discord app connected!");
 
             this.connected = true;
         })();
