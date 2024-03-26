@@ -8,7 +8,7 @@ module.exports = {
             option.setName("text").setDescription("Votre texte").setRequired(true)),
     /** @param {ChatInputCommandInteraction} interaction */
     async execute(interaction) {
-        global.adminChannel.send({
+        global.discord.adminChannel.send({
             content: `Nouveau message de ${interaction.user.username}: ${interaction.options.getString("text")}`});
 
         const embed = new EmbedBuilder()
