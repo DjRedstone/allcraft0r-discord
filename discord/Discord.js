@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const MoneyManager = require("./Money.js");
+const BlacklistManager = require("./Blacklist");
 const { Client, GatewayIntentBits, Collection, Events, REST, Routes, ActivityType, Snowflake, PermissionFlagsBits } = require("discord.js");
 const cron = require("node-cron");
 
@@ -51,10 +52,12 @@ class Discord {
         });
 
         const moneyManager = new MoneyManager(this.client, db);
+        const blacklistManager = new BlacklistManager(this.client, db);
 
-        /** @type {{redstone_emoji: String, money: MoneyManager, db: Db}} */
+        /** @type {{redstone_emoji: String, money: MoneyManager, blacklist: BlacklistManager, db: Db}} */
         global.discord = {
             money: moneyManager,
+            blacklist: blacklistManager,
             db: db,
             redstone_emoji: "<:redstone:503978809645727745>"
         };

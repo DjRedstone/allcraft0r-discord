@@ -128,6 +128,36 @@ class Db {
     async getLeaderboard() {
         return await this.query("SELECT uuid, money FROM user_money ORDER BY money DESC;");
     }
+
+    /**
+     * Get blacklisted words
+     * @return {Promise<Array>}
+     */
+    async getBlacklistedWords() {
+        return await this.query("SELECT * FROM blacklist ORDER BY datetime DESC;");
+    }
+
+    /**
+     * Add a word to blacklisted words
+     * @param word {String} The word
+     * @param userId {Snowflake} The user who add the word
+     * @return {Promise<void>}
+     */
+    async addBlacklistWord(word, userId) {
+        await this.query(`INSERT INTO blacklist VALUES("${word}", ${userId}, "${new Date().toLocaleString("lt-LT")}");`);
+    }
+
+    /**
+     * Remove a word from blacklisted words
+     * @param word {String} The word
+     * @return {Promise<boolean>} All happened good
+     */
+    async removeBlacklistedWord(word) {
+        const res = await this.query(`SELECT word FROM blacklist WHERE word = "${word}";`);
+        if (res.length === 0) return false;
+        await this.query(`DELETE FROM blacklist WHERE word = "${word}";`);
+        return true;
+    }
 }
 
 module.exports = Db;
