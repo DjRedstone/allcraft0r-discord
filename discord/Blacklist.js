@@ -1,17 +1,5 @@
 const { Snowflake } = require("discord.js");
-
-/**
- * Return all chars of a string
- * @param s {String} The string
- * @return {Set<String>} The chars
- */
-function getChars(s) {
-    const res = new Set();
-    for (const char of s) {
-        res.add(char);
-    }
-    return res;
-}
+const { getChars } = require("./utils");
 
 class BlacklistManager {
 
@@ -47,6 +35,11 @@ class BlacklistManager {
         return this.db.removeBlacklistedWord(word);
     }
 
+    /**
+     * Check if a message is blacklist
+     * @param message {String} The user message
+     * @return {Promise<boolean>} The message is blacklist
+     */
     async isBlacklist(message) {
         const blacklistedWords = await this.getWords();
         const messageChars = getChars(message);
