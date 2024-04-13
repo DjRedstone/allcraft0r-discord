@@ -13,6 +13,7 @@ function sameDay(d1, d2) {
 
 class Db {
     DEFAULT_MONEY = 100;
+    DEFAULT_RANK = "Débutant";
 
     /**
      * Constructor
@@ -157,6 +158,26 @@ class Db {
         if (res.length === 0) return false;
         await this.query(`DELETE FROM blacklist WHERE word = "${word}";`);
         return true;
+    }
+
+    /**
+     * Get user data
+     * @param userId {Snowflake}
+     * @return {Promise<{lvl: Number, xp: Number, rank: String, team: (Number|null)}>}
+     */
+    async getUserData(userId) {
+        const res = await this.query(`SELECT Users.rank, Users.lvl, Users.xp, Users.team FROM Users WHERE Users.id = ${userId};`);
+        if (res.length === 0) {
+            await this.query(`INSERT INTO Users VALUES(${userId}, "${this.DEFAULT_RANK}", 0, 0, null);`);
+            return {
+                rank: this.DEFAULT_RANK,
+                lvl: 0,
+                xp: 0,
+                team: null
+            }
+        } else {
+            return res[0];
+        }
     }
 }
 
