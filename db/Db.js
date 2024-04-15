@@ -162,7 +162,7 @@ class Db {
 
     /**
      * Get user data
-     * @param userId {Snowflake}
+     * @param userId {Snowflake} The user id
      * @return {Promise<{lvl: Number, xp: Number, rank: String, team: (Number|null)}>}
      */
     async getUserData(userId) {
@@ -174,6 +174,33 @@ class Db {
                 lvl: 0,
                 xp: 0,
                 team: null
+            }
+        } else {
+            return res[0];
+        }
+    }
+
+    /**
+     * Get user ores
+     * @param userId {Snowflake} The user id
+     * @return {Promise<{gold: Number | null, diamond: Number | null, dirt: Number, coal: Number | null, iron: Number | null, quartz: Number | null, lapis: Number | null, redstone: Number | null, emerald: Number | null, stone: Number, netherite: Number | null}>}
+     */
+    async getUserOres(userId) {
+        const res = await this.query(`SELECT dirt, stone, coal, iron, lapis, redstone, gold, emerald, diamond, quartz, netherite FROM Ores WHERE Ores.id = ${userId};`);
+        if (res.length === 0) {
+            await this.query(`INSERT INTO Ores VALUES(${userId}, 0, 0, null, null, null, null, null, null, null, null, null);`);
+            return {
+                dirt: 0,
+                stone: 0,
+                coal: null,
+                iron: null,
+                lapis: null,
+                redstone: null,
+                gold: null,
+                emerald: null,
+                diamond: null,
+                quartz: null,
+                netherite: null
             }
         } else {
             return res[0];
