@@ -206,6 +206,28 @@ class Db {
             return res[0];
         }
     }
+
+    /**
+     * List all the maps
+     * @return {Promise<Array>} The maps
+     */
+    async getMaps() {
+        return await this.query(`SELECT id, name, description, difficulty, required_lvl FROM Maps;`);
+    }
+
+    /**
+     * Get data from a map
+     * @param mapId {Number} The map id
+     * @return {Promise<{name: String, description: String, difficulty: String, required_lvl: Number, gold: Number | null, diamond: Number | null, dirt: Number, coal: Number | null, iron: Number | null, quartz: Number | null, lapis: Number | null, redstone: Number | null, emerald: Number | null, stone: Number, netherite: Number | null} | null>}
+     */
+    async getMap(mapId) {
+        const res = await this.query(`SELECT name, description, difficulty, required_lvl, dirt, stone, coal, iron, lapis, redstone, gold, emerald, diamond, quartz, netherite FROM Maps WHERE id = ${mapId};`);
+        if (res.length === 0) {
+            return null;
+        } else {
+            return res[0];
+        }
+    }
 }
 
 module.exports = Db;
